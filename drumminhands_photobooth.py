@@ -2,27 +2,34 @@
 # created by chris@drumminhands.com
 # see instructions at http://www.drumminhands.com/2014/06/15/raspberry-pi-photo-booth/
 
+# updates by jaison@zimchaa.org - 
+# remove Tumblr
+# add Twitter
+# add photo collage and imagemagick processing to add logos
+# use Flotilla buttons and lights to add a flash
+# add a single photo mode
+
 import os
 import glob
 import time
 import traceback
 from time import sleep
-import RPi.GPIO as GPIO
+# import RPi.GPIO as GPIO
 import picamera # http://picamera.readthedocs.org/en/release-1.4/install2.html
 import atexit
 import sys
 import socket
 import pygame
 from pygame.locals import QUIT, KEYDOWN, K_ESCAPE
-import pytumblr # https://github.com/tumblr/pytumblr
+# import pytumblr # https://github.com/tumblr/pytumblr
 import config # this is the config python file config.py
 from signal import alarm, signal, SIGALRM, SIGKILL
 
 ########################
 ### Variables Config ###
 ########################
-led_pin = 7 # LED 
-btn_pin = 18 # pin for the start button
+# led_pin = 7 # LED 
+# btn_pin = 18 # pin for the start button
 
 total_pics = 4 # number of pics to be taken
 capture_delay = 1 # delay between pics
@@ -54,18 +61,18 @@ replay_cycles = 2 # how many times to show each photo on-screen after taking
 real_path = os.path.dirname(os.path.realpath(__file__))
 
 # Setup the tumblr OAuth Client
-client = pytumblr.TumblrRestClient(
-    config.consumer_key,
-    config.consumer_secret,
-    config.oath_token,
-    config.oath_secret,
-)
+#client = pytumblr.TumblrRestClient(
+#    config.consumer_key,
+#    config.consumer_secret,
+#    config.oath_token,
+#    config.oath_secret,
+#)
 
 # GPIO setup
-GPIO.setmode(GPIO.BOARD)
-GPIO.setup(led_pin,GPIO.OUT) # LED
-GPIO.setup(btn_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-GPIO.output(led_pin,False) #for some reason the pin turns on at the beginning of the program. Why?
+#GPIO.setmode(GPIO.BOARD)
+#GPIO.setup(led_pin,GPIO.OUT) # LED
+#GPIO.setup(btn_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+#GPIO.output(led_pin,False) #for some reason the pin turns on at the beginning of the program. Why?
 
 # initialize pygame
 pygame.init()
@@ -83,7 +90,7 @@ pygame.display.toggle_fullscreen()
 def cleanup():
   print('Ended abruptly')
   pygame.quit()
-  GPIO.cleanup()
+  #GPIO.cleanup()
 atexit.register(cleanup)
 
 # A function to handle keyboard/mouse/device input events    
@@ -100,11 +107,11 @@ def clear_pics(channel):
 		os.remove(f) 
 	#light the lights in series to show completed
 	print "Deleted previous pics"
-	for x in range(0, 3): #blink light
-		GPIO.output(led_pin,True); 
-		sleep(0.25)
-		GPIO.output(led_pin,False);
-		sleep(0.25)
+	#for x in range(0, 3): #blink light
+		#GPIO.output(led_pin,True); 
+		#sleep(0.25)
+		#GPIO.output(led_pin,False);
+		#sleep(0.25)
 
 # check if connected to the internet   
 def is_connected():
@@ -197,7 +204,7 @@ def start_photobooth():
 	################################# Begin Step 1 #################################
 	
 	print "Get Ready"
-	GPIO.output(led_pin,False);
+	#GPIO.output(led_pin,False);
 	show_image(real_path + "/instructions.png")
 	sleep(prep_delay)
 	
@@ -297,7 +304,7 @@ def start_photobooth():
 			if config.make_gifs: 
 				try:
 					file_to_upload = config.file_path + now + ".gif"
-					client.create_photo(config.tumblr_blog, state="published", tags=[config.tagsForTumblr], data=file_to_upload)
+					#client.create_photo(config.tumblr_blog, state="published", tags=[config.tagsForTumblr], data=file_to_upload)
 					break
 				except ValueError:
 					print "Oops. No internect connection. Upload later."
@@ -313,7 +320,7 @@ def start_photobooth():
 					myJpgs=[0 for i in range(4)]
 					for i in range(4):
 						myJpgs[i]=config.file_path + now + "-0" + str(i+1) + ".jpg"
-					client.create_photo(config.tumblr_blog, state="published", tags=[config.tagsForTumblr], format="markdown", data=myJpgs)
+					#client.create_photo(config.tumblr_blog, state="published", tags=[config.tagsForTumblr], format="markdown", data=myJpgs)
 					break
 				except ValueError:
 					print "Oops. No internect connection. Upload later."
@@ -344,7 +351,7 @@ def start_photobooth():
 	
 	time.sleep(restart_delay)
 	show_image(real_path + "/intro.png");
-	GPIO.output(led_pin,True) #turn on the LED
+	#GPIO.output(led_pin,True) #turn on the LED
 
 ####################
 ### Main Program ###
@@ -356,16 +363,16 @@ if config.clear_on_startup:
 
 print "Photo booth app running..." 
 for x in range(0, 5): #blink light to show the app is running
-	GPIO.output(led_pin,True)
+	#GPIO.output(led_pin,True)
 	sleep(0.25)
-	GPIO.output(led_pin,False)
+	#GPIO.output(led_pin,False)
 	sleep(0.25)
 
 show_image(real_path + "/intro.png");
 
 while True:
-	GPIO.output(led_pin,True); #turn on the light showing users they can push the button
+	#GPIO.output(led_pin,True); #turn on the light showing users they can push the button
 	input(pygame.event.get()) # press escape to exit pygame. Then press ctrl-c to exit python.
-	GPIO.wait_for_edge(btn_pin, GPIO.FALLING)
-	time.sleep(config.debounce) #debounce
+	#GPIO.wait_for_edge(btn_pin, GPIO.FALLING)
+	#time.sleep(config.debounce) #debounce
 	start_photobooth()
